@@ -6,10 +6,19 @@ import (
 )
 
 func ListTours() ([]tour_models.Tour, error) {
-	return tour_repository.GetAll()
+	return tour_repository.FindAll()
+}
+
+func GetTourById(id string) (*tour_models.Tour, error) {
+	return tour_repository.FindById(id)
 }
 
 func CreateTour(tour tour_models.Tour) (tour_models.Tour, error) {
 	err := tour_repository.Save(tour)
 	return tour, err
+}
+
+func DeleteTourById(id string) error {
+	err := tour_repository.Delete(id)
+	return err
 }

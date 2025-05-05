@@ -5,5 +5,7 @@ import "github.com/gin-gonic/gin"
 func RegisterRoutes(rg *gin.RouterGroup) {
 	group := rg.Group("/tours")
 	group.GET("/", GetTours)
-	group.POST("/", CreateTour)
+	group.GET("/:id", GetTour)
+	group.POST("/", CreateNewTour)
+	group.DELETE("/:id", DeleteTour)
 }
