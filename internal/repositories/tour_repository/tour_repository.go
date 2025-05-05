@@ -35,7 +35,7 @@ func FindById(id string) (*tour_models.Tour, error) {
 		FROM tours
 		WHERE id = ?
 	`
-	
+
 	row := db.DB.QueryRow(query, id)
 
 	var tour tour_models.Tour
@@ -47,22 +47,42 @@ func FindById(id string) (*tour_models.Tour, error) {
 	return &tour, nil
 }
 
-func Save(tour tour_models.Tour) error {
+func Save(tour tour_models.Tour) (*tour_models.Tour, error) {
 	query := `
-		INSERT INTO tours(id, name, description, location, dateTime, userId)
+		INSERT INTO tours (id, name, description, location, dateTime, userId)
 		VALUES (?, ?, ?, ?, ?, ?)
+		RETURNING id, name, description, location, dateTime, userId
 	`
-	statement, err := db.DB.Prepare(query)
-	if err != nil {
-		return err
-	}
-	defer statement.Close()
 
-	_, err = statement.Exec(tour.Id, tour.Name, tour.Description, tour.Location, tour.DateTime, tour.UserId)
+	row := db.DB.QueryRow(query, tour.Id, tour.Name, tour.Description, tour.Location, tour.DateTime, tour.UserId)
+
+	var saved tour_models.Tour
+	err := row.Scan(&saved.Id, &saved.Name, &saved.Description, &saved.Location, &saved.DateTime, &saved.UserId)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return &saved, nil
+}
+
+func Update(tour tour_models.Tour) (*tour_models.Tour, error) {
+	query := `
+		UPDATE tours 
+		SET  name = ?, description = ?, location = ?, dateTime = ?, userId = ?
+		WHERE id = ?
+		RETURNING id, name, description, location, dateTime, userId
+	`
+
+	row := db.DB.QueryRow(query, tour.Name, tour.Description, tour.Location, tour.DateTime, tour.UserId, tour.Id)
+
+	var updated tour_models.Tour
+	err := row.Scan(&updated.Id, &updated.Name, &updated.Description, &updated.Location, &updated.DateTime, &updated.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &updated, nil
+
 }
 
 func Delete(id string) error {

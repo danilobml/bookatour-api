@@ -13,9 +13,14 @@ func GetTourById(id string) (*tour_models.Tour, error) {
 	return tour_repository.FindById(id)
 }
 
-func CreateTour(tour tour_models.Tour) (tour_models.Tour, error) {
-	err := tour_repository.Save(tour)
-	return tour, err
+func CreateTour(tour tour_models.Tour) (*tour_models.Tour, error) {
+	savedTour, err := tour_repository.Save(tour)
+	return savedTour, err
+}
+
+func UpdateTour(tour tour_models.Tour) (*tour_models.Tour, error) {
+	updatedTour, err := tour_repository.Update(tour)
+	return updatedTour, err
 }
 
 func DeleteTourById(id string) error {

@@ -38,7 +38,9 @@ func GetTour(context *gin.Context) {
 
 func CreateNewTour(context *gin.Context) {
 	var newTour tour_models.Tour
-	if err := context.ShouldBindJSON(&newTour); err != nil {
+
+	err := context.ShouldBindJSON(&newTour)
+	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data. " + err.Error()})
 		return
 	}
@@ -54,22 +56,55 @@ func CreateNewTour(context *gin.Context) {
 	context.JSON(http.StatusCreated, saved)
 }
 
+func UpdateTour(context *gin.Context) {
+	tourId := context.Param("id")
+
+	if !checkIfTourExists(tourId) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "Tour not found."})
+		return
+	}
+
+	var updatedTour tour_models.Tour
+	err := context.ShouldBindJSON(&updatedTour)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data. " + err.Error()})
+		return
+	}
+
+	if updatedTour.Id != "" && updatedTour.Id != tourId {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "ID in body does not match URL parameter."})
+		return
+	}
+
+	updatedTour.Id = tourId
+
+	updated, err := tour_service.UpdateTour(updatedTour)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Error updating tour with id: " + tourId + ". " + err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, updated)
+}
+
 func DeleteTour(context *gin.Context) {
 	tourId := context.Param("id")
 
-	tour, err := tour_service.GetTourById(tourId)
-	if tour == nil {
-		if err == sql.ErrNoRows {
-			context.JSON(http.StatusNotFound, gin.H{"message": "Tour not found."})
-			return
-		}
+	if !checkIfTourExists(tourId) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "Tour not found."})
+		return
 	}
 
-	err = tour_service.DeleteTourById(tourId)
+	err := tour_service.DeleteTourById(tourId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Error deleting the tour. " + err.Error()})
 		return
 	}
 
 	context.JSON(http.StatusNoContent, gin.H{"message": "Tour deleted."})
+}
+
+func checkIfTourExists(id string) bool {
+	tour, err := tour_service.GetTourById(id)
+	return err == nil && tour != nil
 }

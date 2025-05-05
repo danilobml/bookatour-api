@@ -7,5 +7,6 @@ func RegisterRoutes(rg *gin.RouterGroup) {
 	group.GET("/", GetTours)
 	group.GET("/:id", GetTour)
 	group.POST("/", CreateNewTour)
+	group.PUT("/:id", UpdateTour)
 	group.DELETE("/:id", DeleteTour)
 }
