@@ -1,4 +1,4 @@
-#BookaTour - REST API for booking and managing tours. 
+# BookaTour - REST API for booking and managing tours. 
 
-##Tooling
+## Tooling:
 Written in GO, using the Gin Framework
