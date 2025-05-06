@@ -12,7 +12,7 @@ import (
 
 type Tour = models.Tour
 
-func GetTours(context *gin.Context) {
+func getTours(context *gin.Context) {
 	tours, err := tour_service.ListTours()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Error retrieving from database. " + err.Error()})
@@ -21,7 +21,7 @@ func GetTours(context *gin.Context) {
 	context.JSON(http.StatusOK, tours)
 }
 
-func GetTour(context *gin.Context) {
+func getTour(context *gin.Context) {
 	tourId := context.Param("id")
 
 	tour, err := tour_service.GetTourById(tourId)
@@ -37,7 +37,7 @@ func GetTour(context *gin.Context) {
 	context.JSON(http.StatusOK, tour)
 }
 
-func CreateNewTour(context *gin.Context) {
+func createNewTour(context *gin.Context) {
 	var newTour Tour
 
 	err := context.ShouldBindJSON(&newTour)
@@ -47,6 +47,7 @@ func CreateNewTour(context *gin.Context) {
 	}
 
 	newTour.Id = uuid.New().String()
+	newTour.UserId = context.GetString("userId")
 
 	saved, err := tour_service.CreateTour(newTour)
 	if err != nil {
@@ -57,8 +58,13 @@ func CreateNewTour(context *gin.Context) {
 	context.JSON(http.StatusCreated, saved)
 }
 
-func UpdateTour(context *gin.Context) {
+func updateTour(context *gin.Context) {
 	tourId := context.Param("id")
+	userId := context.GetString("userId")
+
+	if !checkIsSameUser(tourId, userId, context) {
+		return
+	}  
 
 	var req models.UpdateTourRequest
 	if err := context.ShouldBindJSON(&req); err != nil {
@@ -72,7 +78,7 @@ func UpdateTour(context *gin.Context) {
 		Description: req.Description,
 		Location:    req.Location,
 		DateTime:    req.DateTime,
-		UserId:      req.UserId,
+		UserId: userId,
 	}
 
 	updated, err := tour_service.UpdateTour(updatedTour)
@@ -88,8 +94,13 @@ func UpdateTour(context *gin.Context) {
 	context.JSON(http.StatusOK, updated)
 }
 
-func DeleteTour(context *gin.Context) {
+func deleteTour(context *gin.Context) {
 	tourId := context.Param("id")
+	userId := context.GetString("userId")
+
+	if !checkIsSameUser(tourId, userId, context) {
+		return
+	} 
 
 	err := tour_service.DeleteTourById(tourId)
 	if err != nil {
@@ -102,4 +113,21 @@ func DeleteTour(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusNoContent, gin.H{"message": "Tour deleted."})
+}
+
+func checkIsSameUser(tourId string, userId string, context *gin.Context) bool {
+	tour, err := tour_service.GetTourById(tourId)
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"message": "Tour not found."})
+		return false
+	}
+
+	dbUserId := tour.UserId
+
+	if dbUserId != userId {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "User not authorized to execute this operation for that tour."})
+		return false
+	}
+
+	return true
 }

@@ -1,12 +1,17 @@
 package tour_handlers
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/danilobml/bookatour-api/internal/middlewares"
+	"github.com/gin-gonic/gin"
+)
 
 func RegisterRoutes(rg *gin.RouterGroup) {
-	group := rg.Group("/tours")
-	group.GET("/", GetTours)
-	group.GET("/:id", GetTour)
-	group.POST("/", CreateNewTour)
-	group.PUT("/:id", UpdateTour)
-	group.DELETE("/:id", DeleteTour)
+	toursGroup := rg.Group("/tours")
+	toursGroup.GET("/", getTours)
+	toursGroup.GET("/:id", getTour)
+	authenticatedToursGroup := toursGroup.Group("/")
+	authenticatedToursGroup.Use(middlewares.Authenticate)
+	authenticatedToursGroup.POST("/", createNewTour)
+	authenticatedToursGroup.PUT("/:id", updateTour)
+	authenticatedToursGroup.DELETE("/:id", deleteTour)
 }

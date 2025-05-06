@@ -5,7 +5,7 @@ import (
 )
 
 func RegisterRoutes(gr *gin.RouterGroup) {
-	group := gr.Group("/auth")
-	group.POST("/signup", Signup)
-	group.POST("/login", Login)
+	authGroup := gr.Group("/")
+	authGroup.POST("/signup", signup)
+	authGroup.POST("/login", login)
 }

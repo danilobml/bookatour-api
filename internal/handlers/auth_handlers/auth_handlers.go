@@ -13,7 +13,7 @@ import (
 
 type User = models.User
 
-func Signup(context *gin.Context) {
+func signup(context *gin.Context) {
 	var newUser User
 
 	err := context.ShouldBindJSON(&newUser)
@@ -40,7 +40,7 @@ func Signup(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"message": "User registered succesfully."})
 }
 
-func Login(context *gin.Context) {
+func login(context *gin.Context) {
 	var user User
 
 	err := context.ShouldBindJSON(&user)
