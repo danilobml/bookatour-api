@@ -67,7 +67,7 @@ http://localhost:8080/api
 
 
 #### Authenticated routes require a token in the Authorization header:
-Authorization: Bearer <your-jwt-token>
+Authorization: Bearer [your-jwt-token]
 
 
 ## DB Tables
