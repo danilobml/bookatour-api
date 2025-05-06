@@ -29,3 +29,15 @@ func CancelBooking(tourId string, userId string) error {
 	}
 	return nil
 }
+
+func ListBookings() ([]Booking, error) {
+	return booking_repository.FindAll()
+}
+
+func ListUserBookings(userId string) ([]Booking, error) {
+	return booking_repository.FindByUserId(userId)
+}
+
+func ListTourBookings(tourId string) ([]Booking, error) {
+	return booking_repository.FindByTourId(tourId)
+}

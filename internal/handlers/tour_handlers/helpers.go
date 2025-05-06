@@ -25,7 +25,7 @@ func checkIsSameUser(tourId string, userId string, context *gin.Context) bool {
 	return true
 }
 
-func checkTourExists(tourId string, context *gin.Context) bool {
+func CheckTourExists(tourId string, context *gin.Context) bool {
 	_, err := tour_service.GetTourById(tourId)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"message": "Tour with provided id not found."})

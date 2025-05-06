@@ -128,7 +128,7 @@ func bookTour(context *gin.Context) {
 		return
 	}
 
-	if !checkTourExists(tourId, context) {
+	if !CheckTourExists(tourId, context) {
 		return
 	}
 

@@ -59,7 +59,7 @@ func FindAll() ([]Booking, error) {
 	return bookings, nil
 }
 
-func FindAllByTourId(tourId string) ([]Booking, error) {
+func FindByTourId(tourId string) ([]Booking, error) {
 	query := `
 		SELECT *
 		FROM bookings
@@ -84,7 +84,7 @@ func FindAllByTourId(tourId string) ([]Booking, error) {
 	return bookings, nil
 }
 
-func FindAllByUserId(userId string) ([]Booking, error) {
+func FindByUserId(userId string) ([]Booking, error) {
 	query := `
 		SELECT *
 		FROM bookings
