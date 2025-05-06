@@ -23,6 +23,20 @@ func InitDB() {
 }
 
 func createTables() {
+	createUsersTable := `
+		CREATE TABLE IF NOT EXISTS users (
+			id TEXT PRIMARY KEY,
+			email TEXT NOT NULL UNIQUE,
+			password TEXT NOT NULL,
+			role TEXT NOT NULL
+		);
+	`
+
+	_, err := DB.Exec(createUsersTable)
+	if err != nil {
+		panic("Could not create user table.")
+	}
+
 	createToursTable := `
 		CREATE TABLE IF NOT EXISTS tours (
 			id TEXT PRIMARY KEY,
@@ -30,11 +44,12 @@ func createTables() {
 			description TEXT NOT NULL,
 			location TEXT NOT NULL,
 			dateTime DATETIME NOT NULL,
-			userId VARCHAR
+			userId VARCHAR,
+			FOREIGN KEY(userId) REFERENCES users(id)
 		);
 	`
-	_, err := DB.Exec(createToursTable)
+	_, err = DB.Exec(createToursTable)
 	if err != nil {
-		panic("Could not create tables.")
+		panic("Could not create tours table.")
 	}
 }

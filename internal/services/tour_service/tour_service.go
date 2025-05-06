@@ -1,29 +1,62 @@
 package tour_service
 
 import (
-	"github.com/danilobml/bookatour-api/internal/models/tour_models"
+	"database/sql"
+	"errors"
+
+	"github.com/danilobml/bookatour-api/internal/models"
 	"github.com/danilobml/bookatour-api/internal/repositories/tour_repository"
 )
 
-func ListTours() ([]tour_models.Tour, error) {
+var ErrTourNotFound = errors.New("tour not found")
+
+type Tour = models.Tour
+
+func ListTours() ([]Tour, error) {
 	return tour_repository.FindAll()
 }
 
-func GetTourById(id string) (*tour_models.Tour, error) {
-	return tour_repository.FindById(id)
+func GetTourById(id string) (*Tour, error) {
+	tour, err := tour_repository.FindById(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrTourNotFound
+		}
+		return nil, err
+	}
+	return tour, nil
 }
 
-func CreateTour(tour tour_models.Tour) (*tour_models.Tour, error) {
-	savedTour, err := tour_repository.Save(tour)
-	return savedTour, err
+func CreateTour(tour Tour) (*Tour, error) {
+	return tour_repository.Save(tour)
 }
 
-func UpdateTour(tour tour_models.Tour) (*tour_models.Tour, error) {
-	updatedTour, err := tour_repository.Update(tour)
-	return updatedTour, err
+func UpdateTour(tour Tour) (*Tour, error) {
+	result, err := tour_repository.Update(tour)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if rows == 0 {
+		return nil, ErrTourNotFound
+	}
+	return &tour, nil
 }
 
 func DeleteTourById(id string) error {
-	err := tour_repository.Delete(id)
-	return err
+	result, err := tour_repository.Delete(id)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrTourNotFound
+	}
+	return nil
 }
