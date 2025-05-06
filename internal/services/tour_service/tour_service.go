@@ -5,12 +5,14 @@ import (
 	"errors"
 
 	"github.com/danilobml/bookatour-api/internal/models"
+	"github.com/danilobml/bookatour-api/internal/repositories/booking_repository"
 	"github.com/danilobml/bookatour-api/internal/repositories/tour_repository"
 )
 
 var ErrTourNotFound = errors.New("tour not found")
 
 type Tour = models.Tour
+type Booking = models.Booking
 
 func ListTours() ([]Tour, error) {
 	return tour_repository.FindAll()
@@ -59,4 +61,8 @@ func DeleteTourById(id string) error {
 		return ErrTourNotFound
 	}
 	return nil
+}
+
+func BookTour(booking Booking) (*Booking, error) {
+	return booking_repository.Save(booking)
 }

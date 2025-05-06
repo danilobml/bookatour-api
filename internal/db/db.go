@@ -3,23 +3,23 @@ package db
 import (
 	"database/sql"
 
-	_"github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var DB *sql.DB
- 
+
 func InitDB() {
-    var err error
-    DB, err = sql.Open("sqlite3", "api.db")
- 
-    if err != nil {
-        panic("Could not connect to database.")
-    }
- 
-    DB.SetMaxOpenConns(10)
-    DB.SetMaxIdleConns(5)
- 
-    createTables()
+	var err error
+	DB, err = sql.Open("sqlite3", "api.db")
+
+	if err != nil {
+		panic("Could not connect to database.")
+	}
+
+	DB.SetMaxOpenConns(10)
+	DB.SetMaxIdleConns(5)
+
+	createTables()
 }
 
 func createTables() {
@@ -28,7 +28,7 @@ func createTables() {
 			id TEXT PRIMARY KEY,
 			email TEXT NOT NULL UNIQUE,
 			password TEXT NOT NULL,
-			role TEXT NOT NULL
+			role TEXT
 		);
 	`
 
@@ -44,12 +44,27 @@ func createTables() {
 			description TEXT NOT NULL,
 			location TEXT NOT NULL,
 			dateTime DATETIME NOT NULL,
-			userId VARCHAR,
+			userId TEXT NOT NULL,
 			FOREIGN KEY(userId) REFERENCES users(id)
 		);
 	`
 	_, err = DB.Exec(createToursTable)
 	if err != nil {
 		panic("Could not create tours table.")
+	}
+
+	createBookingsTable := `
+		CREATE TABLE IF NOT EXISTS bookings (
+			id TEXT PRIMARY KEY,
+			tourId TEXT NOT NULL,
+			userId TEXT NOT NULL,
+			FOREIGN KEY(tourId) REFERENCES tours(id),
+			FOREIGN KEY(userId) REFERENCES users(id)
+		)
+	`
+
+	_, err = DB.Exec(createBookingsTable)
+	if err != nil {
+		panic("Could not create bookings table.")
 	}
 }
